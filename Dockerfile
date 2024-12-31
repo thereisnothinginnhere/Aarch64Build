@@ -1,29 +1,26 @@
-name: Confirm Architecture
+# Use the official Debian:Bookworm base image
+FROM --platform=linux/arm64 debian:bookworm
 
-on:
-  workflow_dispatch:
+RUN uname -m
 
-jobs:
-  build:
-    runs-on: ubuntu-latest
+# Install dependencies
+RUN apt-get update
+RUN apt-get install -y \
+    git \
+    cmake \
+    libssl-dev \
+    zlib1g-dev \
+    g++ \
+    gperf
 
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v2
+# Clone the repository
+RUN git clone --recursive https://github.com/tdlib/telegram-bot-api.git
 
-      - name: Set up QEMU
-        uses: docker/setup-qemu-action@v2
+# Build the project
+WORKDIR /telegram-bot-api
+RUN mkdir build && cd build && \
+    cmake -DCMAKE_BUILD_TYPE=Release .. && \
+    cmake --build . --target install
 
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v2
-
-      - name: Set DOCKER_DEFAULT_PLATFORM
-        run: echo "DOCKER_DEFAULT_PLATFORM=linux/arm64" >> $GITHUB_ENV
-
-      - name: Build and run Docker image
-        run: |
-          docker build -t architecture-checker -<<EOF
-          FROM --platform=linux/arm64 debian:bookworm
-          RUN uname -m
-          EOF
-          docker run architecture-checker
+# Copy the built binary to the output directory
+RUN mkdir -p /output && cp /telegram-bot-api/build/telegram-bot-api /output/telegram-bot-api-aarch64
