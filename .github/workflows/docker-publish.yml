@@ -1,4 +1,4 @@
-name: Confirm Architecture
+name: Build and Push Binary
 
 on:
   workflow_dispatch:
@@ -7,9 +7,12 @@ jobs:
   build:
     runs-on: ubuntu-latest
 
+    permissions:  
+      contents: write
+
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
 
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v2
@@ -20,10 +23,17 @@ jobs:
       - name: Set DOCKER_DEFAULT_PLATFORM
         run: echo "DOCKER_DEFAULT_PLATFORM=linux/arm64" >> $GITHUB_ENV
 
-      - name: Build and run Docker image
+      - name: Build Docker image
         run: |
-          docker build -t architecture-checker -<<EOF
-          FROM --platform=linux/arm64 debian:bookworm
-          RUN uname -m
-          EOF
-          docker run architecture-checker
+          docker build -t telegram-bot-api-builder:latest .
+          docker create --name bot-builder telegram-bot-api-builder:latest
+          docker cp bot-builder:/output/telegram-bot-api-aarch64 ./telegram-bot-api-aarch64
+          docker rm bot-builder
+
+      - name: Commit and push the binary
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          git add ./telegram-bot-api-aarch64
+          git commit -m "Add built binary file"
+          git push
