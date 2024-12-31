@@ -1,4 +1,4 @@
-name: Build and Push Binary
+name: Build and Push Binaries for Multiple Architectures
 
 on:
   workflow_dispatch:
@@ -20,20 +20,58 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v2
 
-      - name: Set DOCKER_DEFAULT_PLATFORM
-        run: echo "DOCKER_DEFAULT_PLATFORM=linux/arm64" >> $GITHUB_ENV
-
-      - name: Build Docker image
+      - name: Build Docker image for linux/amd64
         run: |
-          docker build -t telegram-bot-api-builder:latest .
-          docker create --name bot-builder telegram-bot-api-builder:latest
-          docker cp bot-builder:/output/telegram-bot-api-aarch64 ./telegram-bot-api-aarch64
-          docker rm bot-builder
+          echo "DOCKER_DEFAULT_PLATFORM=linux/amd64" >> $GITHUB_ENV
+          docker build --build-arg PLATFORM=linux/amd64 --build-arg BASE_IMAGE=ubuntu:latest -t telegram-bot-api-builder:amd64 .
+          docker create --name bot-builder-amd64 telegram-bot-api-builder:amd64
+          docker cp bot-builder-amd64:/output/telegram-bot-api ./telegram-bot-api-ubuntu-amd64
+          docker rm bot-builder-amd64
 
-      - name: Commit and push the binary
+      - name: Build Docker image for linux/arm64 (Ubuntu)
+        run: |
+          echo "DOCKER_DEFAULT_PLATFORM=linux/arm64" >> $GITHUB_ENV
+          docker build --build-arg PLATFORM=linux/arm64 --build-arg BASE_IMAGE=ubuntu:latest -t telegram-bot-api-builder:arm64-ubuntu .
+          docker create --name bot-builder-arm64-ubuntu telegram-bot-api-builder:arm64-ubuntu
+          docker cp bot-builder-arm64-ubuntu:/output/telegram-bot-api ./telegram-bot-api-ubuntu-arm64
+          docker rm bot-builder-arm64-ubuntu
+
+      - name: Build Docker image for linux/arm/v7 (Ubuntu)
+        run: |
+          echo "DOCKER_DEFAULT_PLATFORM=linux/arm/v7" >> $GITHUB_ENV
+          docker build --build-arg PLATFORM=linux/arm/v7 --build-arg BASE_IMAGE=ubuntu:latest -t telegram-bot-api-builder:armv7-ubuntu .
+          docker create --name bot-builder-armv7-ubuntu telegram-bot-api-builder:armv7-ubuntu
+          docker cp bot-builder-armv7-ubuntu:/output/telegram-bot-api ./telegram-bot-api-ubuntu-armv7
+          docker rm bot-builder-armv7-ubuntu
+
+      - name: Build Docker image for linux/386
+        run: |
+          echo "DOCKER_DEFAULT_PLATFORM=linux/386" >> $GITHUB_ENV
+          docker build --build-arg PLATFORM=linux/386 --build-arg BASE_IMAGE=ubuntu:latest -t telegram-bot-api-builder:386 .
+          docker create --name bot-builder-386 telegram-bot-api-builder:386
+          docker cp bot-builder-386:/output/telegram-bot-api ./telegram-bot-api-ubuntu-386
+          docker rm bot-builder-386
+
+      - name: Build Docker image for linux/arm64 (Debian)
+        run: |
+          echo "DOCKER_DEFAULT_PLATFORM=linux/arm64" >> $GITHUB_ENV
+          docker build --build-arg PLATFORM=linux/arm64 --build-arg BASE_IMAGE=debian:bookworm -t telegram-bot-api-builder:arm64-debian .
+          docker create --name bot-builder-arm64-debian telegram-bot-api-builder:arm64-debian
+          docker cp bot-builder-arm64-debian:/output/telegram-bot-api ./telegram-bot-api-rpi-arm64
+          docker rm bot-builder-arm64-debian
+
+      - name: Build Docker image for linux/arm/v7 (Debian)
+        run: |
+          echo "DOCKER_DEFAULT_PLATFORM=linux/arm/v7" >> $GITHUB_ENV
+          docker build --build-arg PLATFORM=linux/arm/v7 --build-arg BASE_IMAGE=debian:bookworm -t telegram-bot-api-builder:armv7-debian .
+          docker create --name bot-builder-armv7-debian telegram-bot-api-builder:armv7-debian
+          docker cp bot-builder-armv7-debian:/output/telegram-bot-api ./telegram-bot-api-rpi-armv7
+          docker rm bot-builder-armv7-debian
+
+      - name: Commit and push all binaries
         run: |
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Action"
-          git add ./telegram-bot-api-aarch64
-          git commit -m "Add built binary file"
+          git add ./telegram-bot-api-ubuntu-amd64 ./telegram-bot-api-ubuntu-arm64 ./telegram-bot-api-ubuntu-armv7 ./telegram-bot-api-ubuntu-386 ./telegram-bot-api-rpi-arm64 ./telegram-bot-api-rpi-armv7
+          git commit -m "Add built binaries for multiple architectures with 'rpi' prefix for Raspberry Pi"
           git push
