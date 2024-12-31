@@ -1,5 +1,7 @@
-# Use the official Debian:Bookworm base image
-FROM --platform=linux/arm64 debian:bookworm
+# Use the specified base image
+ARG BASE_IMAGE
+ARG PLATFORM
+FROM --platform=${PLATFORM} ${BASE_IMAGE}
 
 RUN uname -m
 
@@ -23,4 +25,4 @@ RUN mkdir build && cd build && \
     cmake --build . --target install
 
 # Copy the built binary to the output directory
-RUN mkdir -p /output && cp /telegram-bot-api/build/telegram-bot-api /output/telegram-bot-api-aarch64
+RUN mkdir -p /output && cp /telegram-bot-api/build/telegram-bot-api /output/telegram-bot-api
