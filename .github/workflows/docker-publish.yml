@@ -28,21 +28,21 @@ jobs:
           docker cp bot-builder-amd64:/output/telegram-bot-api ./telegram-bot-api-ubuntu-amd64
           docker rm bot-builder-amd64
 
-      - name: Build Docker image for linux/arm64 (Ubuntu)
-        run: |
-          echo "DOCKER_DEFAULT_PLATFORM=linux/arm64" >> $GITHUB_ENV
-          docker build --build-arg PLATFORM=linux/arm64 --build-arg BASE_IMAGE=ubuntu:latest -t telegram-bot-api-builder:arm64-ubuntu .
-          docker create --name bot-builder-arm64-ubuntu telegram-bot-api-builder:arm64-ubuntu
-          docker cp bot-builder-arm64-ubuntu:/output/telegram-bot-api ./telegram-bot-api-ubuntu-arm64
-          docker rm bot-builder-arm64-ubuntu
+      # - name: Build Docker image for linux/arm64 (Ubuntu)
+      #   run: |
+      #     echo "DOCKER_DEFAULT_PLATFORM=linux/arm64" >> $GITHUB_ENV
+      #     docker build --build-arg PLATFORM=linux/arm64 --build-arg BASE_IMAGE=ubuntu:latest -t telegram-bot-api-builder:arm64-ubuntu .
+      #     docker create --name bot-builder-arm64-ubuntu telegram-bot-api-builder:arm64-ubuntu
+      #     docker cp bot-builder-arm64-ubuntu:/output/telegram-bot-api ./telegram-bot-api-ubuntu-arm64
+      #     docker rm bot-builder-arm64-ubuntu
 
-      - name: Build Docker image for linux/arm/v7 (Ubuntu)
-        run: |
-          echo "DOCKER_DEFAULT_PLATFORM=linux/arm/v7" >> $GITHUB_ENV
-          docker build --build-arg PLATFORM=linux/arm/v7 --build-arg BASE_IMAGE=ubuntu:latest -t telegram-bot-api-builder:armv7-ubuntu .
-          docker create --name bot-builder-armv7-ubuntu telegram-bot-api-builder:armv7-ubuntu
-          docker cp bot-builder-armv7-ubuntu:/output/telegram-bot-api ./telegram-bot-api-ubuntu-armv7
-          docker rm bot-builder-armv7-ubuntu
+      # - name: Build Docker image for linux/arm/v7 (Ubuntu)
+      #   run: |
+      #     echo "DOCKER_DEFAULT_PLATFORM=linux/arm/v7" >> $GITHUB_ENV
+      #     docker build --build-arg PLATFORM=linux/arm/v7 --build-arg BASE_IMAGE=ubuntu:latest -t telegram-bot-api-builder:armv7-ubuntu .
+      #     docker create --name bot-builder-armv7-ubuntu telegram-bot-api-builder:armv7-ubuntu
+      #     docker cp bot-builder-armv7-ubuntu:/output/telegram-bot-api ./telegram-bot-api-ubuntu-armv7
+      #     docker rm bot-builder-armv7-ubuntu
 
       - name: Build Docker image for linux/386
         run: |
