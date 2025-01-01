@@ -44,13 +44,13 @@ jobs:
       #     docker cp bot-builder-armv7-ubuntu:/output/telegram-bot-api ./telegram-bot-api-ubuntu-armv7
       #     docker rm bot-builder-armv7-ubuntu
 
-      - name: Build Docker image for linux/386
-        run: |
-          echo "DOCKER_DEFAULT_PLATFORM=linux/386" >> $GITHUB_ENV
-          docker build --build-arg PLATFORM=linux/386 --build-arg BASE_IMAGE=ubuntu:latest -t telegram-bot-api-builder:386 .
-          docker create --name bot-builder-386 telegram-bot-api-builder:386
-          docker cp bot-builder-386:/output/telegram-bot-api ./telegram-bot-api-ubuntu-386
-          docker rm bot-builder-386
+      # - name: Build Docker image for linux/386
+      #   run: |
+      #     echo "DOCKER_DEFAULT_PLATFORM=linux/386" >> $GITHUB_ENV
+      #     docker build --build-arg PLATFORM=linux/386 --build-arg BASE_IMAGE=ubuntu:latest -t telegram-bot-api-builder:386 .
+      #     docker create --name bot-builder-386 telegram-bot-api-builder:386
+      #     docker cp bot-builder-386:/output/telegram-bot-api ./telegram-bot-api-ubuntu-386
+      #     docker rm bot-builder-386
 
       - name: Build Docker image for linux/arm64 (Debian)
         run: |
